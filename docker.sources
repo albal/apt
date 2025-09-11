@@ -1,0 +1,7 @@
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: plucky
+Components: stable
+Architectures: amd64
+Enabled: yes
+Signed-By: /etc/apt/keyrings/docker.asc

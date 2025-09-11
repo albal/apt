@@ -1,0 +1,6 @@
+Types: deb
+URIs: https://packagecloud.io/slacktechnologies/slack/debian/
+Suites: jessie
+Components: main
+Enabled: yes
+Signed-By: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg

@@ -1,0 +1,7 @@
+# /etc/apt/sources.list.d/hashicorp.sources
+Types: deb
+URIs: https://apt.releases.hashicorp.com
+Suites: jammy
+Components: main
+Architectures: amd64
+Signed-By: /usr/share/keyrings/hashicorp-archive-keyring.gpg

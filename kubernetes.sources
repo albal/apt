@@ -1,0 +1,5 @@
+# /etc/apt/sources.list.d/kubernetes.sources
+Types: deb
+URIs: https://pkgs.k8s.io/core:/stable:/v1.33/deb/
+Suites: /
+Signed-By: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
