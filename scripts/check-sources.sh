@@ -19,27 +19,30 @@ cd "$REPO_DIR"
 # changelogs.ubuntu.com/meta-release lists every Ubuntu release in
 # RFC822-style stanzas. LTS releases are identified by an "LTS" suffix
 # in the Version field (e.g. "26.04 LTS", "24.04.4 LTS"). We pick the
-# stanza with the highest Version that is marked Supported: 1 and
-# tagged as LTS.
+# stanza with the highest Version that is tagged as LTS and whose
+# release month is not in the future.
 #
 # Note: meta-release-lts only advertises an LTS once its first point
 # release is published (typically ~4 months after release), so it lags
 # behind the actual current LTS. Using meta-release avoids that lag.
+# The Supported field in meta-release can also lag for a newly released
+# LTS, so it is intentionally not used for current-LTS selection.
 # ---------------------------------------------------------------------------
 META_URL="https://changelogs.ubuntu.com/meta-release"
 META=$(curl -fsSL --retry 3 --max-time 30 "$META_URL" || true)
+CURRENT_YY=$(date -u +%y)
+CURRENT_MM=$(date -u +%m)
 
 LTS_CODENAME=""
 LTS_VERSION=""
 if [[ -n "$META" ]]; then
-  # Among stanzas that are Supported: 1 and tagged LTS in Version,
-  # pick the one with the numerically highest Version (YY.MM[.P]).
-  read -r LTS_CODENAME LTS_VERSION < <(awk '
+  # Among stanzas that are tagged LTS in Version and not dated in the
+  # future, pick the one with the numerically highest Version (YY.MM[.P]).
+  read -r LTS_CODENAME LTS_VERSION < <(awk -v current_year="$CURRENT_YY" -v current_month="$CURRENT_MM" '
     BEGIN { RS=""; FS="\n"; best_year=-1; best_month=-1; best_point=-1 }
     {
-      sup=0; lts=0; dist=""; ver=""; vnum=""
+      lts=0; dist=""; ver=""; vnum=""
       for (i=1;i<=NF;i++) {
-        if ($i ~ /^Supported:[[:space:]]*1/) sup=1
         if ($i ~ /^Dist:/)    { dist=$i; sub(/^Dist:[[:space:]]*/,"",dist) }
         if ($i ~ /^Version:/) {
           ver=$i; sub(/^Version:[[:space:]]*/,"",ver)
@@ -47,10 +50,11 @@ if [[ -n "$META" ]]; then
           vnum=ver; sub(/[[:space:]]*LTS.*$/,"",vnum)
         }
       }
-      if (sup==1 && lts==1 && dist!="" && vnum ~ /^[0-9]+\.[0-9]+/) {
+      if (lts==1 && dist!="" && vnum ~ /^[0-9]+\.[0-9]+/) {
         n=split(vnum, parts, ".")
         year=parts[1]+0; month=parts[2]+0
         point=(n>=3 ? parts[3]+0 : 0)
+        if (year > current_year || (year == current_year && month > current_month)) next
         if (year > best_year \
             || (year == best_year && month > best_month) \
             || (year == best_year && month == best_month && point > best_point)) {
@@ -64,9 +68,15 @@ if [[ -n "$META" ]]; then
 fi
 
 if [[ -z "$LTS_CODENAME" ]]; then
-  echo "::warning::Could not determine current Ubuntu LTS from $META_URL; defaulting to 'noble'"
-  LTS_CODENAME="noble"
-  LTS_VERSION="24.04"
+  if (( 10#$CURRENT_YY > 26 || (10#$CURRENT_YY == 26 && 10#$CURRENT_MM >= 4) )); then
+    echo "::warning::Could not determine current Ubuntu LTS from $META_URL; defaulting to 'resolute'"
+    LTS_CODENAME="resolute"
+    LTS_VERSION="26.04"
+  else
+    echo "::warning::Could not determine current Ubuntu LTS from $META_URL; defaulting to 'noble'"
+    LTS_CODENAME="noble"
+    LTS_VERSION="24.04"
+  fi
 fi
 
 echo "# APT sources vs. current Ubuntu LTS"
