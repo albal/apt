@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Weekly, every Monday at 06:00 UTC.
-    - cron: '0 6 * * 1'
+    - cron: '0 10 * * 1'
   push:
     paths:
       - '**/*.sources'
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run source checker
         run: |
