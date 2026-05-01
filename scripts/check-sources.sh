@@ -54,6 +54,7 @@ if [[ -n "$META" ]]; then
         n=split(vnum, parts, ".")
         year=parts[1]+0; month=parts[2]+0
         point=(n>=3 ? parts[3]+0 : 0)
+        # Point releases are not part of the release-month comparison.
         if (year > current_year || (year == current_year && month > current_month)) next
         if (year > best_year \
             || (year == best_year && month > best_month) \
