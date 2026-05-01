@@ -1,0 +1,27 @@
+name: Check APT sources against current Ubuntu LTS
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly, every Monday at 06:00 UTC.
+    - cron: '0 6 * * 1'
+  push:
+    paths:
+      - '**/*.sources'
+      - 'scripts/check-sources.sh'
+      - '.github/workflows/check-apt-sources.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check-sources:
+    name: Check apt sources for newer LTS suites
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run source checker
+        run: |
+          bash scripts/check-sources.sh . | tee "$GITHUB_STEP_SUMMARY"
