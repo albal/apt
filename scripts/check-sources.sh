@@ -16,41 +16,50 @@ cd "$REPO_DIR"
 # ---------------------------------------------------------------------------
 # Determine the current Ubuntu LTS codename.
 #
-# changelogs.ubuntu.com/meta-release-lts returns RFC822-style stanzas
-# describing each LTS release. The last "Supported: 1" stanza is the
-# current LTS.
+# changelogs.ubuntu.com/meta-release lists every Ubuntu release in
+# RFC822-style stanzas. LTS releases are identified by an "LTS" suffix
+# in the Version field (e.g. "26.04 LTS", "24.04.4 LTS"). We pick the
+# stanza with the highest Version that is marked Supported: 1 and
+# tagged as LTS.
+#
+# Note: meta-release-lts only advertises an LTS once its first point
+# release is published (typically ~4 months after release), so it lags
+# behind the actual current LTS. Using meta-release avoids that lag.
 # ---------------------------------------------------------------------------
-META_URL="https://changelogs.ubuntu.com/meta-release-lts"
+META_URL="https://changelogs.ubuntu.com/meta-release"
 META=$(curl -fsSL --retry 3 --max-time 30 "$META_URL" || true)
 
 LTS_CODENAME=""
 LTS_VERSION=""
 if [[ -n "$META" ]]; then
-  # Pick the last stanza marked Supported: 1
-  LTS_CODENAME=$(awk '
-    BEGIN { RS=""; FS="\n" }
+  # Among stanzas that are Supported: 1 and tagged LTS in Version,
+  # pick the one with the numerically highest Version (YY.MM[.P]).
+  read -r LTS_CODENAME LTS_VERSION < <(awk '
+    BEGIN { RS=""; FS="\n"; best_year=-1; best_month=-1; best_point=-1 }
     {
-      sup=""; dist=""; ver=""
+      sup=0; lts=0; dist=""; ver=""; vnum=""
       for (i=1;i<=NF;i++) {
         if ($i ~ /^Supported:[[:space:]]*1/) sup=1
         if ($i ~ /^Dist:/)    { dist=$i; sub(/^Dist:[[:space:]]*/,"",dist) }
-        if ($i ~ /^Version:/) { ver=$i;  sub(/^Version:[[:space:]]*/,"",ver) }
+        if ($i ~ /^Version:/) {
+          ver=$i; sub(/^Version:[[:space:]]*/,"",ver)
+          if (ver ~ /LTS/) lts=1
+          vnum=ver; sub(/[[:space:]]*LTS.*$/,"",vnum)
+        }
       }
-      if (sup==1 && dist!="") { d=dist; v=ver }
-    }
-    END { if (d!="") print d }
-  ' <<<"$META")
-  LTS_VERSION=$(awk '
-    BEGIN { RS=""; FS="\n" }
-    {
-      sup=""; ver=""
-      for (i=1;i<=NF;i++) {
-        if ($i ~ /^Supported:[[:space:]]*1/) sup=1
-        if ($i ~ /^Version:/) { ver=$i; sub(/^Version:[[:space:]]*/,"",ver) }
+      if (sup==1 && lts==1 && dist!="" && vnum ~ /^[0-9]+\.[0-9]+/) {
+        n=split(vnum, parts, ".")
+        year=parts[1]+0; month=parts[2]+0
+        point=(n>=3 ? parts[3]+0 : 0)
+        if (year > best_year \
+            || (year == best_year && month > best_month) \
+            || (year == best_year && month == best_month && point > best_point)) {
+          best_year=year; best_month=month; best_point=point
+          best_dist=dist; best_vnum=vnum
+        }
       }
-      if (sup==1 && ver!="") v=ver
     }
-    END { if (v!="") print v }
+    END { if (best_dist!="") print best_dist, best_vnum }
   ' <<<"$META")
 fi
 
