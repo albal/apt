@@ -1,0 +1,7 @@
+Types: deb
+URIs: https://storage.googleapis.com/bazel-apt/
+Suites: stable
+Components: jdk1.8
+Architectures: amd64
+Signed-By: /usr/share/keyrings/bazel-archive-keyring.gpg
+Enabled: yes

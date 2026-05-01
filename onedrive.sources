@@ -1,0 +1,5 @@
+Types: deb
+URIs: https://download.opensuse.org/repositories/home:/npreining:/debian-ubuntu-onedrive/xUbuntu_25.04/
+Suites: ./
+Architectures: amd64
+Signed-By: /usr/share/keyrings/obs-onedrive.gpg

@@ -1,11 +1,11 @@
 Types: deb
 URIs: http://gb.archive.ubuntu.com/ubuntu/
-Suites: questing questing-updates questing-backports
+Suites: resolute resolute-updates resolute-backports
 Components: main restricted universe multiverse
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 Types: deb
 URIs: http://security.ubuntu.com/ubuntu/
-Suites: questing-security
+Suites: resolute-security
 Components: main restricted universe multiverse
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg

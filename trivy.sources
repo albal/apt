@@ -1,0 +1,6 @@
+Types: deb
+URIs: https://get.trivy.dev/deb
+Suites: generic
+Components: main
+Signed-By: /etc/apt/keyrings/trivy.gpg
+Enabled: yes

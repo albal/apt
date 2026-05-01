@@ -1,0 +1,7 @@
+Types: deb
+URIs: https://packages.twingate.com/apt/
+Suites: *
+Components: *
+Architectures: amd64
+Signed-By: /usr/share/keyrings/twingate-client-keyring.gpg
+
