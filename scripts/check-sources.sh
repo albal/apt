@@ -202,8 +202,8 @@ print_section() {
   echo
 }
 
-print_section "🔔 Updates available — newer LTS suite published upstream" "${OUTDATED[@]:-}"
-print_section "✅ Already on current LTS"                                  "${MATCHING[@]:-}"
-print_section "❔ No LTS suite found upstream"                             "${UNREACHABLE[@]:-}"
-print_section "➖ Flat repositories (no codename)"                          "${FLAT[@]:-}"
-print_section "➖ Channel-style suites (codename not applicable)"           "${SKIPPED[@]:-}"
+print_section "🔔 Updates available — newer LTS suite published upstream" "${OUTDATED[@]}"
+print_section "✅ Already on current LTS"                                  "${MATCHING[@]}"
+print_section "❔ No LTS suite found upstream"                             "${UNREACHABLE[@]}"
+print_section "➖ Flat repositories (no codename)"                          "${FLAT[@]}"
+print_section "➖ Channel-style suites (codename not applicable)"           "${SKIPPED[@]}"
